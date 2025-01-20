@@ -1,0 +1,62 @@
+---
+- name: Download, unpack and copy AlphaFold datasets to minio
+  hosts: storagenode
+  vars:
+    alphafold_urls:
+      - "https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000625_83333_ECOLI_v4.tar"
+      - "https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar"
+  tasks:
+    - name: Download archives of Alphafold datasets
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "/home/almalinux/data/{{ item | basename }}"
+        tmp_dest: /home/almalinux/data
+      loop: "{{ alphafold_urls }}"
+      loop_control:
+        label: "{{ item | basename }}"
+    - name: Create folders for unpacking Alphafold datasets
+      ansible.builtin.file:
+        path: "/home/almalinux/data/{{ (item | basename).split('_')[-2] | lower }}/"
+        state: directory
+      loop: "{{ alphafold_urls }}"
+      loop_control:
+        label: "{{ (item | basename).split('_')[-2] | lower }}"
+    - name: Unpack archives of Alphafold datasets
+      ansible.builtin.unarchive:
+        src: "/home/almalinux/data/{{ item | basename }}"
+        dest: "/home/almalinux/data/{{ (item | basename).split('_')[-2] | lower }}/"
+        remote_src: true
+      loop: "{{ alphafold_urls }}"
+      loop_control:
+        label: "{{ item | basename }}"
+    - name: Unpack all .pdb.gz files
+      ansible.builtin.shell: |
+        find /home/almalinux/data/{{ (item | basename).split('_')[-2] | lower }}/ -maxdepth 1 -name '*.pdb.gz' -print0 \
+        | xargs -0 -P 3 gzip -d
+      loop: "{{ alphafold_urls }}"
+      loop_control:
+        label: "{{ (item | basename).split('_')[-2] | lower }}"
+    - name: Check minio input bucket
+      ansible.builtin.shell: "/usr/local/bin/mc ls local/input"
+      register: input_bucket_check
+      ignore_errors: true
+    - name: Generate minio input bucket
+      ansible.builtin.shell: "/usr/local/bin/mc mb local/input"
+      when: input_bucket_check.failed or "No such bucket" in input_bucket_check.stderr
+    - name: Check minio output bucket
+      ansible.builtin.shell: "/usr/local/bin/mc ls local/output"
+      register: output_bucket_check
+      ignore_errors: true
+    - name: Generate minio output bucket
+      ansible.builtin.shell: "/usr/local/bin/mc mb local/output"
+      when: output_bucket_check.failed or "No such bucket" in output_bucket_check.stderr
+    - name: Upload datasets to minio
+      ansible.builtin.shell: "/usr/local/bin/mc cp -r /home/almalinux/data/{{ (item | basename).split('_')[-2] | lower }}/ local/input/{{ (item | basename).split('_')[-2] | lower }}"
+      loop: "{{ alphafold_urls }}"
+      loop_control:
+        label: "{{ item | basename }}"
+    - name: Upload datapaths.txt for workers' use
+      ansible.builtin.shell: "/usr/local/bin/mc cp /home/almalinux/data/datapaths.txt local/input"
+
+    
+

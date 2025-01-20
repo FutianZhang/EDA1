@@ -1,0 +1,11 @@
+---
+- name: Clone Merizo Search from a Git repository
+  hosts: workers:storagenode
+  become: true
+  become_user: root
+  tasks:
+    - name: Clone Merizo Search
+      git:
+        repo: "https://github.com/psipred/merizo_search.git"
+        dest: "/home/almalinux/merizo_search"
+        force: yes

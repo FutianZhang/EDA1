@@ -1,0 +1,28 @@
+---
+
+- import_playbook: update.yaml
+- import_playbook: reboot.yaml
+- import_playbook: customisations.yaml
+- import_playbook: hostnamemgmtnode.yaml
+- import_playbook: hostnameworkers.yaml
+- import_playbook: hostnamestoragenode.yaml
+- import_playbook: commonkeys.yaml
+- import_playbook: sharecommonkeys.yaml
+- import_playbook: userfiles.yaml
+- import_playbook: firewall.yaml
+- import_playbook: reboot.yaml
+- import_playbook: spark-install.yaml
+- import_playbook: install-hadoop.yaml
+- import_playbook: hadoop-mgmt.yaml
+- import_playbook: hadoop-worker.yaml
+- import_playbook: hadoop-final.yaml
+- import_playbook: second-disk.yaml
+- import_playbook: minio.yaml
+- import_playbook: install-dependencies.yaml
+- import_playbook: install-cath.yaml
+- import_playbook: logging.yaml
+- import_playbook: nodeexporter.yaml
+- import_playbook: install-datasets.yaml
+- import_playbook: distribute-datapaths.yaml
+- import_playbook: clone-merizo_search.yaml
+- import_playbook: dispatch-scripts.yaml

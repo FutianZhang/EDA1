@@ -1,0 +1,18 @@
+- name: Set up firewall
+  become: true
+  become_user: root
+  hosts: all
+  tasks: 
+  - name: enable ufw
+    ansible.builtin.shell: "echo y | ufw enable"
+  - name: allow traffic from cluster hosts
+    ansible.builtin.shell: "ufw allow from {{ item }}"
+    loop: "{{ query('inventory_hostnames', 'all')  }}"
+  - name: allow SSH access
+    ansible.builtin.shell: "ufw allow ssh"
+  - name: allow S3 access
+    ansible.builtin.shell: "ufw allow 9000"
+  - name: allow Prometheus access
+    ansible.builtin.shell: "ufw allow 9090"
+  - name: allow Node Exporter access
+    ansible.builtin.shell: "ufw allow 9100"

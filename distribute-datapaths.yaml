@@ -1,0 +1,18 @@
+---
+- name: Share datapaths to workers by datapaths.txt
+  hosts: workers
+  tasks:
+    - name: Create input directory
+      become: true
+      become_user: root
+      file:
+        path: /home/almalinux/input
+        state: directory 
+    - name: Create output directory
+      become: true
+      become_user: root
+      file:
+        path: /home/almalinux/output
+        state: directory 
+    - name: Get datapaths from minio by datapaths.txt
+      ansible.builtin.shell: "/usr/local/bin/mc get local/input/datapaths.txt /home/almalinux"

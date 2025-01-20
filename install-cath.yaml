@@ -1,0 +1,22 @@
+---
+- name: download and unpack CATH Foldclass DB
+  hosts: workers
+  tasks:
+    - name: Create directory to store data 
+      ansible.builtin.file:
+        path: /home/almalinux/data
+        state: directory
+    - name: Download CATH Foldclass DB
+      ansible.builtin.get_url:
+        dest: /home/almalinux/data/cath_foldclassdb.tar.gz
+        url: "http://bioinfadmin.cs.ucl.ac.uk/downloads/merizo_search/cath_foldclassdb.tar.gz"
+        tmp_dest: data/
+    - name: Create directory for unpacking CATH Foldclass DB
+      ansible.builtin.file:
+        path: /home/almalinux/data/cath_foldclassdb
+        state: directory
+    - name: Unpack CATH Foldclass DB
+      ansible.builtin.unarchive:
+        dest: /home/almalinux/data/cath_foldclassdb
+        remote_src: true
+        src: /home/almalinux/data/cath_foldclassdb.tar.gz
